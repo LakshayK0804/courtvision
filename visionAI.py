@@ -44,36 +44,3 @@ st.markdown('<style>div.block-container{padding-top:3rem;font-family: "montserra
 #with col1:
     #year1 = pd.to_datetime(st.selectbox("Select Year", range(startYear, endYear)))
 
-st.sidebar.header("Filters: ")
-years = st.sidebar.multiselect("Select Year", data['Year'].unique())
-if not years:
-    df2 = data.copy()
-    
-else:
-    df2 = data[data['Year'].isin(years)]
-    
-team = st.sidebar.multiselect("Pick your team", df2['TEAM'].unique())
-if not team:
-    df3 = df2.copy()
-else:
-    df3 = df2[df2['TEAM'].isin(team)]
-
-players = st.sidebar.multiselect("Select Player", df3['PLAYER'].unique())
-
-
-if not team and not years and not players:
-    filter_df = data
-elif not team and not years:
-    filter_df = data[data['PLAYER'].isin(players)]
-elif not team and not players:
-    filter_df = data[data['Year'].isin(years)]
-elif not players and not years:
-    filter_df = data[data['TEAM'].isin(team)]
-elif players and years:
-    filter_df = df3[df3['PLAYER'].isin(players) & data['Year'].isin(years)]
-elif team and years:
-    filter_df = df3[df2['TEAM'].isin(team) & data['Year'].isin(years)]
-elif team and players:
-    filter_df = df3[df3['PLAYER'].isin(players) & data['Team'].isin(team)]
-else:
-    filter_df = df3[df3['PLAYER'].isin(players) & df2['Team'].isin(years) & data['Years'].isin(years)]
