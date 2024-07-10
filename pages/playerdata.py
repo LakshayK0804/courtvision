@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 import os
 import requests
 pd.set_option('display.max_columns', None)
@@ -9,8 +10,7 @@ import numpy as np
 
 data = pd.read_excel('../nba-data-scraper/player_data.xlsx')
 #Cleaning Data
-
-#data['season_start_year']=['Year'].str[:4].astype(int)
+data['season_start_year'] = data['Year'].str[:4].astype(int)
 data['TEAM'].replace(to_replace=['NOP','NOH'], value ='NO', inplace=True)
 data['Season_type'].replace('Regular%20Season', 'Regular Season', inplace=True)
 rs_df = data[data['Season_type']=="Regular Season"]
@@ -32,9 +32,11 @@ data_per_min['FG3M/FGM'] = data_per_min['FG3M']/data_per_min['FGM']
 data_per_min['FTA/FGA'] = data_per_min['FTA']/data_per_min['FGA'] #Free throw attempts per Field Goal Attempt
 data_per_min['TRU%'] = 0.5*data_per_min['PTS']/(data_per_min['FGA']+0.475*data_per_min['FTA']) #True shooting percentage - modern measure
 data_per_min['AST_TOV'] = data_per_min['AST']/data_per_min['TOV']
+data_per_min = data_per_min[data_per_min['MIN']>=50]
+data_per_min.drop(columns='PLAYER_ID', inplace=True)
 
 #streamlit - presenting data
-st.set_page_config(page_title="courtVision", page_icon="🏀", layout="wide")
+st.set_page_config(page_title="CourtSide", page_icon="🏀", layout="wide")
 st.title(" 🏀 statHead")
 st.markdown('<style>div.block-container{padding-top:3rem;font-family: "montserrat", bold;}</style>', unsafe_allow_html=True)
 
@@ -77,9 +79,9 @@ elif team and players:
 else:
     filter_df = df3[df3['PLAYER'].isin(players) & df3['TEAM'].isin(team) & df3['Year'].isin(years)]
 
-col1, col2 = st.columns((2))
 
-category_df = filter_df.groupby(['PLAYER', 'PLAYER_ID', 'Year'])[total_cols].sum()
+
+category_df = filter_df.groupby(['PLAYER', 'Year'])[total_cols].sum()
 for col in category_df.columns[4:]:
     category_df[col] = category_df[col]/ category_df['MIN']
 
@@ -95,14 +97,90 @@ category_df['AST_TOV'] = category_df['AST']/category_df['TOV']
 
 
 
-with col1:
-    st.subheader("Shooting Percentage")
-    fig = px.bar(category_df, x="FG3M", y = "FG3A", text = ['${:,.2f}'.format(x) for x in category_df['FG3M']],
-    template = "seaborn")
-    st.plotly_chart(fig,use_container_width=True, height = 200)
 
-with col2:
-    st.subheader("Shooting Percentage")
-    fig = px.bar(category_df, x="TRU%", y = "FGA", text = ['${:,.2f}'.format(x) for x in category_df['TRU%']],
-    template = "seaborn")
-    st.plotly_chart(fig,use_container_width=True, height = 200)
+
+st.header("Information")
+if not team and not years and not players:
+    st.text("View overall stats about your favourite league or select filters from the sidebar to view specific stats about your favourite player")
+elif not team and not years:
+    st.text(f"Name: {players[0]}")
+elif not team and not players:
+    st.text(f"Year: {years[0]}")
+elif not players and not years:
+    st.text(f"Team: {team[0]}")
+elif players and years:
+    st.text(f"Name: {players[0]}")
+    st.text(f"Year: {years[0]}")
+elif team and years:
+    st.text(f"Team: {team[0]}")
+    st.text(f"Year: {years[0]}")
+elif team and players:
+    st.text(f"Name: {players[0]}")
+    st.text(f"Team: {team[0]}")
+else:
+    st.text(f"Name: {players[0]}")
+    st.text(f"Team: {team[0]}")
+    st.text(f"Year: {years[0]}")
+
+
+change_df = data.groupby('season_start_year')[total_cols].sum().reset_index()
+change_df['POSS_est'] = change_df['FGA']-change_df['OREB']+change_df['TOV']+0.44*change_df['FTA']
+change_df = change_df[list(change_df.columns[0:2])+['POSS_est']+list(change_df.columns[2:-1])]
+
+change_df['FG%'] = change_df['FGM']/change_df['FGA']
+change_df['3PT%'] = 100*change_df['FG3M']/change_df['FG3A']
+change_df['FT%'] = 100*change_df['FTM']/change_df['FTA']
+change_df['AST%'] = change_df['AST']/change_df['FGM']
+change_df['FG3A%'] = change_df['FG3A']/change_df['FGA']
+change_df['PTS/FGA'] = change_df['PTS']/change_df['FGA']
+change_df['FG3M/FGM'] = change_df['FG3M']/change_df['FGM']
+change_df['FTA/FGA'] = change_df['FTA']/change_df['FGA']
+change_df['TRU%'] = 0.5*change_df['PTS']/(change_df['FGA']+0.475*change_df['FTA'])
+change_df['AST_TOV'] = change_df['AST']/change_df['TOV']
+
+
+
+change_per100_df = change_df.copy()
+
+for col in change_per100_df.columns[3:18]:
+    change_per100_df[col] = (change_per100_df[col]/change_per100_df['POSS_est'])*100
+
+change_per100_df.drop(columns=['MIN','POSS_est'], inplace=True)
+
+fig_3p = go.Figure()
+fig_3p.add_trace(go.Scatter(x=change_per100_df['season_start_year'],
+                             y=change_per100_df['FG3A'], name="Attempts"))
+fig_3p.add_trace(go.Scatter(x=change_per100_df['season_start_year'],
+y=change_per100_df['FG3M'], name="Makes"))
+fig_3p.add_trace(go.Scatter(x=change_per100_df['season_start_year'],
+y=change_per100_df['3PT%'], name="3P Shooting Percentage"))
+#for col in change_per100_df.columns[1:]:
+#    fig_3p.add_trace(go.Scatter(x=change_per100_df['season_start_year'],
+#                             y=change_per100_df['FG3A'], name=col))
+fig_FT = go.Figure()
+fig_FT.add_trace(go.Scatter(x=change_per100_df['season_start_year'],
+                             y=change_per100_df['FTA'], name="Attempts"))
+fig_FT.add_trace(go.Scatter(x=change_per100_df['season_start_year'],
+y=change_per100_df['FTM'], name="Makes"))
+fig_FT.add_trace(go.Scatter(x=change_per100_df['season_start_year'],
+y=change_per100_df['FT%'], name="FT %"))
+
+fig_PF = go.Figure()
+
+fig_PF.add_trace(go.Scatter(x=change_per100_df['season_start_year'],
+                             y=change_per100_df['PF'], name="Fouls"))
+
+    
+st.divider()
+
+col1, col2 = st.columns([0.9999,0.0001])
+with col1:
+    st.header('Has the NBA changed?')
+    st.caption('*each statistic is shown based on every 100 possesions from 2010.')
+    st.caption('*you can isolate each trace on the graph by clicking the key on the side. ')
+    st.subheader('3 point shooting:')
+    st.plotly_chart(fig_3p)
+    st.subheader('Free throws: ')
+    st.plotly_chart(fig_FT)
+    st.subheader("Fouls:")
+    st.plotly_chart(fig_PF)

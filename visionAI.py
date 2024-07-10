@@ -34,8 +34,8 @@ data_per_min['TRU%'] = 0.5*data_per_min['PTS']/(data_per_min['FGA']+0.475*data_p
 data_per_min['AST_TOV'] = data_per_min['AST']/data_per_min['TOV']
 
 #streamlit - presenting data
-st.set_page_config(page_title="courtVision", page_icon=":basketball:", layout="wide")
-st.title(" :basketball: courtVision")
+st.set_page_config(page_title="CourtSide", page_icon='🏀', layout="wide")
+st.title("🏀 CourtSide")
 st.markdown('<style>div.block-container{padding-top:3rem;font-family: "montserrat", bold;}</style>', unsafe_allow_html=True)
 
 
