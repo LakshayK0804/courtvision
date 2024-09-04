@@ -22,8 +22,8 @@ st.write("You've come to the right place!")
 st.write("Click on the top left to access 'playerdata' or 'visonAI' our insane AI that predicts how your favourite player's upcoming season is gonna go, I can see the gambling enthusiast in you full of joy already :smile")
 
 st.divider()
-url = "www.linkedin.com/in/lakshay-kalra-b13121198"
 
 st.header("About ME")
 st.write("HI, I'm Lakshay Kalra - the creator of this website!")
-st.write("Find out more about me [here](%s)!" % url)
+
+st.link_button("Find out more about me here!", "https://www.linkedin.com/in/lakshay-kalra-b13121198/")
