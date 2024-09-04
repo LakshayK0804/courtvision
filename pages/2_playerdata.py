@@ -41,7 +41,7 @@ data_per_min.drop(columns='PLAYER_ID', inplace=True)
 
 #streamlit - presenting data
 st.set_page_config(page_title="CourtSide", page_icon="🏀", layout="wide")
-st.title(" 🏀 statHead")
+st.title(" 🏀 playerData")
 st.markdown('<style>div.block-container{padding-top:3rem;font-family: "montserrat", bold;}</style>', unsafe_allow_html=True)
 
 

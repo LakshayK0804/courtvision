@@ -27,7 +27,7 @@ total_cols = ['MIN', 'FGM', 'FGA', 'FG3M', 'FG3A', 'FTM', 'FTA', 'OREB', 'DREB',
 
 #streamlit - presenting data
 st.set_page_config(page_title="CourtSide", page_icon='🏀', layout="wide")
-st.title("🏀 CourtSide")
+st.title("🏀 visionAI")
 st.markdown('<style>div.block-container{padding-top:3rem;font-family: "montserrat", bold;}</style>', unsafe_allow_html=True)
 
 
