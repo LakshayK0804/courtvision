@@ -12,7 +12,7 @@ from nba_api.stats.endpoints import playercareerstats
 from nba_api.stats.static import players
 
 
-data = pd.read_excel('../nba-data-scraper/player_data.xlsx')
+data = pd.read_excel('./player_data.xlsx')
 #Cleaning Data
 data['season_start_year'] = data['Year'].str[:4].astype(int)
 data['TEAM'].replace(to_replace=['NOP','NOH'], value ='NO', inplace=True)
