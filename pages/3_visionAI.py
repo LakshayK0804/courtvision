@@ -12,7 +12,7 @@ from nba_api.live.nba.endpoints import scoreboard
 games = scoreboard.ScoreBoard()
 games.get_json()
 games.get_dict()
-data = pd.read_excel('../nba-data-scraper/player_data.xlsx')
+data = pd.read_excel('./player_data.xlsx')
 #Cleaning Data
 
 #data['season_start_year']=['Year'].str[:4].astype(int)
