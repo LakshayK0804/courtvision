@@ -268,7 +268,7 @@ try:
         ps_teamupdate = playerstats_df[playerstats_df['TEAM_ABBREVIATION']==tm_name]
 
 except IndexError:
-    st.text("Please select a player")
+    st.text("Please select a player!")
     pass
 
 #playerstats_df
